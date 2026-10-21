@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sudoku · 数独 – Free Online Minimal Sudoku</title>
+  <meta name="description" content="A free, minimal Sudoku in your browser. Three levels, a timer and your best times.">
+  <link rel="canonical" href="https://alberthx86.github.io/sudoku/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://alberthx86.github.io/sudoku/">
+  <meta property="og:title" content="Sudoku · 数独">
+  <meta property="og:description" content="A free, minimal Sudoku in your browser. Three levels, a timer and your best times.">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Sudoku",
+    "alternateName": "数独",
+    "url": "https://alberthx86.github.io/sudoku/",
+    "description": "A free, minimal Sudoku in your browser. Three levels, a timer and your best times.",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Any",
+    "inLanguage": ["en", "zh-CN"],
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "Albert Huang", "url": "https://alberthx86.github.io/" }
+  }
+  </script>
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231d1d1f'/%3E%3Cpath d='M6 3v10M10 3v10M3 6h10M3 10h10' stroke='%23fff' stroke-width='1.1'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    try {
+      var t = localStorage.getItem('sudoku.theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="bar">
+    <span class="brand" data-i18n="title">Sudoku</span>
+    <div class="tools">
+      <label class="lang">
+        <span class="sr-only">语言 / Language</span>
+        <select id="lang" aria-label="语言 / Language">
+          <option value="" disabled selected hidden>语言 / Language</option>
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </label>
+      <button id="theme" class="link" type="button" aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <main>
+    <div class="sizes" role="radiogroup" aria-label="Difficulty">
+      <button type="button" data-level="easy" data-i18n="easy">Easy</button>
+      <button type="button" data-level="medium" data-i18n="medium">Medium</button>
+      <button type="button" data-level="hard" data-i18n="hard">Hard</button>
+    </div>
+
+    <div class="status">
+      <div>
+        <span class="label" data-i18n="mistakes">Mistakes</span>
+        <span id="mistakes" class="value mono">0</span>
+      </div>
+      <div>
+        <span class="label" data-i18n="time">Time</span>
+        <span id="time" class="value mono">0:00</span>
+      </div>
+      <div>
+        <span class="label" data-i18n="best">Best</span>
+        <span id="best" class="value mono">—</span>
+      </div>
+    </div>
+
+    <div id="board" class="board" aria-live="off"></div>
+
+    <div id="pad" class="pad" aria-label="Numbers">
+      <button type="button" data-n="1">1</button>
+      <button type="button" data-n="2">2</button>
+      <button type="button" data-n="3">3</button>
+      <button type="button" data-n="4">4</button>
+      <button type="button" data-n="5">5</button>
+      <button type="button" data-n="6">6</button>
+      <button type="button" data-n="7">7</button>
+      <button type="button" data-n="8">8</button>
+      <button type="button" data-n="9">9</button>
+      <button type="button" data-n="0" aria-label="Erase">⌫</button>
+    </div>
+
+    <p id="hint" class="hint" data-i18n="hint">Pick a cell, then a number. The timer starts with your first move.</p>
+
+    <div class="actions">
+      <button id="reset" class="btn" type="button" data-i18n="reset">Reset</button>
+    </div>
+
+    <section class="records" aria-labelledby="rec-title">
+      <div class="records-head">
+        <h2 id="rec-title" data-i18n="records">Records</h2>
+        <button id="clear" class="link small" type="button" data-i18n="clear">Clear</button>
+      </div>
+      <ol id="history" class="history"></ol>
+      <p id="empty" class="muted small" data-i18n="empty">No records for this level yet.</p>
+      <p class="muted small" data-i18n="local">Records are saved only in this browser.</p>
+    </section>
+
+    <details class="lit">
+      <summary data-i18n="lit">Research: Sudoku and the prefrontal cortex</summary>
+
+      <div class="en-only">
+        <p>In Sudoku every row, column and 3×3 box must hold 1–9 exactly once. Solving one means keeping candidates in working memory, applying rules and checking your choices, which are jobs the prefrontal cortex is central to [1].</p>
+        <p><b>What studies saw during the puzzle</b></p>
+        <ul>
+          <li>fNIRS in 28 young adults: oxygenated haemoglobin rose at all 16 prefrontal recording sites while they filled 3×3 boxes and an easy 9×9 puzzle. Medial prefrontal areas responded more once row and column rules came into play [2].</li>
+          <li>A 2026 systematic review of six imaging studies (five fMRI, one fNIRS): Sudoku engaged frontoparietal executive-control regions, including the dorsolateral prefrontal cortex, and quietened the default-mode network, more so for harder puzzles [3].</li>
+          <li>In 19,078 adults aged 50–93, those who did number puzzles more often scored better on tests of attention, working memory and reasoning [4].</li>
+        </ul>
+        <p><b>What this does not show</b></p>
+        <p>The imaging studies are few, small and mostly single-session, so they show what the brain does while you play, not that playing changes it [3]. The puzzle-frequency study is correlational: people with sharper minds may simply enjoy puzzles more [4]. Brain training reliably improves the trained task, but evidence that it transfers to other tasks or daily life is weak [5]. Enjoy Sudoku as a puzzle, not a treatment.</p>
+      </div>
+
+      <div class="zh-only">
+        <p>数独要求每一行、每一列、每个 3×3 宫都恰好包含 1–9。解题需要在工作记忆中保留候选数字、运用规则并检查自己的选择，而这些正是前额叶皮层的核心功能 [1]。</p>
+        <p><b>研究在解题过程中观察到了什么</b></p>
+        <ul>
+          <li>对 28 名青年人的 fNIRS 研究：在填写 3×3 宫和一道简单的 9×9 数独时，前额叶全部 16 个记录点的氧合血红蛋白都升高；引入行、列规则后，内侧前额叶的反应更强 [2]。</li>
+          <li>2026 年一篇纳入 6 项脑成像研究（5 项 fMRI、1 项 fNIRS）的系统综述：数独会激活包括背外侧前额叶在内的额顶执行控制区域，并抑制默认模式网络，题目越难抑制越明显 [3]。</li>
+          <li>在 19,078 名 50–93 岁的成年人中，越常做数字谜题的人，在注意力、工作记忆和推理测试中得分越高 [4]。</li>
+        </ul>
+        <p><b>这些研究不能说明什么</b></p>
+        <p>脑成像研究数量少、样本小，而且大多只测一次，只能说明玩的时候大脑在做什么，不能说明玩数独会改变大脑 [3]。谜题频率研究是相关性研究：也可能是头脑更敏锐的人更喜欢做谜题 [4]。脑力训练能可靠地提高被训练任务本身的成绩，但迁移到其他任务或日常生活的证据很弱 [5]。把数独当作一项益智游戏来享受，而不是治疗手段。</p>
+      </div>
+
+      <p class="refs-title" data-i18n="refs">References</p>
+      <ol class="refs">
+        <li>Miller EK, Cohen JD. An integrative theory of prefrontal cortex function. <i>Annual Review of Neuroscience</i>. 2001;24:167–202. <a href="https://doi.org/10.1146/annurev.neuro.24.1.167" target="_blank" rel="noopener">doi:10.1146/annurev.neuro.24.1.167</a></li>
+        <li>Patil A, Deepak KK, Kochhar KP. Role of prefrontal cortex during Sudoku task: fNIRS study. <i>Translational Neuroscience</i>. 2020;11(1):419–427. <a href="https://doi.org/10.1515/tnsci-2020-0147" target="_blank" rel="noopener">doi:10.1515/tnsci-2020-0147</a></li>
+        <li>Williams MJ, Williamson EJ, Brooks SJ. Neural correlates of Sudoku play: a systematic review of brain imaging studies. <i>Frontiers in Neuroimaging</i>. 2026;5:1756394. <a href="https://doi.org/10.3389/fnimg.2026.1756394" target="_blank" rel="noopener">doi:10.3389/fnimg.2026.1756394</a></li>
+        <li>Brooker H, Wesnes KA, Ballard C, et al. The relationship between the frequency of number-puzzle use and baseline cognitive function in a large online sample of adults aged 50 and over. <i>International Journal of Geriatric Psychiatry</i>. 2019;34(7):932–940. <a href="https://doi.org/10.1002/gps.5085" target="_blank" rel="noopener">doi:10.1002/gps.5085</a></li>
+        <li>Simons DJ, Boot WR, Charness N, et al. Do “brain-training” programs work? <i>Psychological Science in the Public Interest</i>. 2016;17(3):103–186. <a href="https://doi.org/10.1177/1529100616661983" target="_blank" rel="noopener">doi:10.1177/1529100616661983</a></li>
+      </ol>
+    </details>
+  </main>
+
+  <footer class="foot">
+    <p>
+      <a href="https://alberthx86.github.io/schulte-grid/" data-i18n="other">Schulte Grid</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://github.com/AlbertHX86/sudoku" target="_blank" rel="noopener">GitHub</a>
+      <span aria-hidden="true">·</span>
+      <a href="https://alberthx86.github.io/" target="_blank" rel="noopener">Albert Huang</a>
+    </p>
+    <p data-i18n="copyright">© 2026 Albert Huang. Released under the MIT License.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
