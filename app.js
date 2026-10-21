@@ -25,6 +25,7 @@
       oneMistake: '1 mistake',
       copyright: '© 2026 Albert Huang. Released under the MIT License.',
       other: 'Schulte Grid',
+      gomoku: 'Gomoku',
       lit: 'Research: Sudoku and the prefrontal cortex',
       refs: 'References'
     },
@@ -51,6 +52,7 @@
       oneMistake: '错 1 次',
       copyright: '© 2026 Albert Huang. 以 MIT 许可证开源。',
       other: '舒尔特方格',
+      gomoku: '五子棋',
       lit: '文献：数独与前额叶',
       refs: '参考文献'
     }
